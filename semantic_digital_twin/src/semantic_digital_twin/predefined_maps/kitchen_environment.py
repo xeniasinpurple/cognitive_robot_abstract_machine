@@ -1,8 +1,10 @@
+import math
+
 import numpy as np
 from enum import Enum
 
 from semantic_digital_twin.datastructures.prefixed_name import PrefixedName
-from semantic_digital_twin.semantic_annotations.semantic_annotations import Room, Floor
+from semantic_digital_twin.semantic_annotations.semantic_annotations import Room, Floor, WashingMachine
 from semantic_digital_twin.semantic_annotations.semantic_annotations import (
     Table,
     Sofa,
@@ -1712,6 +1714,10 @@ class KitchenEnvironment:
                 for shape in leg.root.visual.shapes:
                     shape.color = Color.BEIGE()
                 dining_table.add(leg)
+
+            # --- Washing Machine --- #
+            self._build_washing_machine(world)
+
         return world
 
     def _build_coffee_table(self, world):
@@ -1895,3 +1901,21 @@ class KitchenEnvironment:
             world.add_semantic_annotations(room_annotations)
 
         return world
+
+    def _build_washing_machine(self, world: World):
+        # Sizes in metres
+        width, height, depth = 0.596, 0.85, 0.637
+        depth_door_open = 1.055
+
+        # Position the washing machine next to the leftmost door
+        x, y, z = 0.05,  2.5, 0.85/2
+        position = HomogeneousTransformationMatrix.from_xyz_rpy(x, y, z, yaw=math.radians(180))
+
+        washing_machine = WashingMachine.create_with_new_body_in_world(
+            world=world,
+            name="washing_machine",
+            world_root_T_self=position,
+            scale=Scale(depth, width, height),
+        )
+
+
